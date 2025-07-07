@@ -34,6 +34,10 @@ A fun proof-of-concept application for face matching using React frontend and Fa
 
 ## Setup and Installation
 
+### Quick Start
+
+For detailed AWS deployment instructions, see **[DEPLOYMENT.md](DEPLOYMENT.md)**
+
 ### Method 1: Docker Deployment (Recommended)
 
 1. **Prerequisites**: Docker and Docker Compose installed
@@ -175,6 +179,28 @@ Compares faces in uploaded images.
 4. Drag and drop 2-4 images or click to select files
 5. Click "Compare Faces" to process the images
 6. View detailed results including match status and confidence scores
+
+## Deployment
+
+### Local Development
+```bash
+docker-compose up --build
+```
+
+### AWS Production Deployment
+For production deployment on AWS EC2 or ECS, see the comprehensive guide:
+
+**📖 [DEPLOYMENT.md](DEPLOYMENT.md)** - Complete AWS deployment instructions
+
+#### Quick Overview:
+- **EC2 + Docker Compose**: Simple, cost-effective (~$75/month)
+- **ECS Fargate**: Managed, auto-scaling (~$100/month)  
+- **ECS on EC2**: Hybrid approach, customizable
+
+#### Minimum Requirements:
+- **Instance**: t3.large (4GB RAM, 2 vCPUs)
+- **Storage**: 20-30 GB
+- **Network**: VPC with internet gateway
 
 ## Production Considerations
 

@@ -40,8 +40,8 @@ interface ApiResponse {
 }
 
 const AVAILABLE_MODELS = [
-  "VGG-Face",
   "Facenet",
+  "VGG-Face",
   "Facenet512", 
   "OpenFace",
   "DeepFace",
@@ -53,7 +53,7 @@ const AVAILABLE_MODELS = [
 
 const FaceVerificationPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
-  const [selectedModel, setSelectedModel] = useState<string>("VGG-Face");
+  const [selectedModel, setSelectedModel] = useState<string>("Facenet");
   const [results, setResults] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
