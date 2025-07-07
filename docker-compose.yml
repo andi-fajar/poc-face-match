@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: face-match-backend
+    environment:
+      - TF_USE_LEGACY_KERAS=1
+      - TF_ENABLE_ONEDNN_OPTS=0
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - deepface_models:/root/.deepface/weights
+    ports:
+      - "8000:8000"
+    networks:
+      - face-match-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: face-match-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - face-match-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  deepface_models:
+    driver: local
+
+networks:
+  face-match-network:
+    driver: bridge

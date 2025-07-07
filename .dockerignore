@@ -1,0 +1,44 @@
+# Backend .dockerignore
+backend/node_modules
+backend/.git
+backend/.gitignore
+backend/README.md
+backend/.env
+backend/.pytest_cache
+backend/__pycache__
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.Python
+backend/env
+backend/pip-log.txt
+backend/pip-delete-this-directory.txt
+backend/.tox
+backend/.coverage
+backend/.coverage.*
+backend/.cache
+backend/nosetests.xml
+backend/coverage.xml
+backend/*.log
+
+# Frontend .dockerignore
+frontend/node_modules
+frontend/.git
+frontend/.gitignore
+frontend/README.md
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# General
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+*~
