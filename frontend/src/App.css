@@ -1,0 +1,23 @@
+.App {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-left: 280px;
+  flex: 1;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .App {
+    flex-direction: column;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    margin-top: 0;
+  }
+}

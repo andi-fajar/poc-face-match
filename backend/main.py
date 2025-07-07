@@ -33,8 +33,8 @@ app.add_middleware(
 
 # Available models in DeepFace
 AVAILABLE_MODELS = [
-    "VGG-Face",
     "Facenet",
+    "VGG-Face",
     "Facenet512", 
     "OpenFace",
     "DeepFace",
@@ -128,7 +128,7 @@ async def health_check():
 @app.post("/compare-faces")
 async def compare_faces(
     files: List[UploadFile] = File(...),
-    model: str = Form("VGG-Face")
+    model: str = Form("Facenet")
 ):
     """Compare faces in uploaded images using specified model"""
     
