@@ -42,7 +42,7 @@ const HomePage: React.FC = () => {
       description: 'Detect real faces vs fake/spoofed images for security',
       icon: '🔒',
       path: '/anti-spoofing',
-      status: 'coming-soon'
+      status: 'available'
     },
     {
       title: 'Real-time Analysis',
@@ -117,6 +117,20 @@ const HomePage: React.FC = () => {
                 <li>Emotion detection (7 emotions)</li>
                 <li>Ethnicity analysis (6 categories)</li>
                 <li>Multiple faces per image support</li>
+              </ul>
+            </div>
+          </div>
+          <div className="featured-item">
+            <span className="featured-icon">🔒</span>
+            <div className="featured-content">
+              <h3>Face Anti-Spoofing</h3>
+              <p>Advanced security through real vs fake face detection using MiniVision models</p>
+              <ul>
+                <li>Detect spoofed photos and videos</li>
+                <li>Anti-spoofing confidence scores</li>
+                <li>Multiple face analysis support</li>
+                <li>Real-time fraud prevention</li>
+                <li>Enhanced security verification</li>
               </ul>
             </div>
           </div>

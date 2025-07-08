@@ -11,6 +11,7 @@ import Navigation from './components/Navigation';
 import HomePage from './pages/HomePage';
 import FaceVerificationPage from './pages/FaceVerificationPage';
 import FacialAttributesPage from './pages/FacialAttributesPage';
+import SpoofDetectionPage from './pages/SpoofDetectionPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 import './App.css';
 
@@ -77,30 +78,7 @@ const App: React.FC = () => {
               } 
             />
             
-            <Route 
-              path="/anti-spoofing" 
-              element={
-                <ComingSoonPage
-                  icon="🔒"
-                  title="Face Anti-Spoofing"
-                  description="Detect real faces vs fake/spoofed images for enhanced security and fraud prevention"
-                  features={[
-                    "Live face detection",
-                    "Photo/video spoof detection",
-                    "3D mask detection",
-                    "Deepfake identification",
-                    "Security scoring system"
-                  ]}
-                  expectedFeatures={[
-                    "Real-time liveness detection",
-                    "Multi-modal verification",
-                    "Integration with authentication systems",
-                    "Fraud prevention analytics",
-                    "Customizable security thresholds"
-                  ]}
-                />
-              } 
-            />
+            <Route path="/anti-spoofing" element={<SpoofDetectionPage />} />
             
             <Route 
               path="/real-time" 
