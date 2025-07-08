@@ -301,6 +301,137 @@
   border-left: 4px solid #9C27B0;
 }
 
+/* Visualization Header */
+.visualization-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.toggle-view-btn {
+  background: #9C27B0;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.toggle-view-btn:hover {
+  background: #7B1FA2;
+  transform: translateY(-1px);
+}
+
+/* Barcode Section */
+.barcode-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.barcode-info {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.barcode-info p {
+  margin: 5px 0;
+  color: #6c757d;
+}
+
+.barcode-info p:first-child {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+.barcode-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.barcode-canvas {
+  border: 2px solid #dee2e6;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  cursor: crosshair;
+  transition: all 0.3s ease;
+}
+
+.barcode-canvas:hover {
+  border-color: #9C27B0;
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.2);
+}
+
+/* Color Scale Legend */
+.color-scale {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+}
+
+.scale-bar {
+  width: 100%;
+  height: 20px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.scale-gradient {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, 
+    rgb(0, 0, 255),     /* Blue (min) */
+    rgb(128, 128, 255), /* Purple (mid) */
+    rgb(255, 0, 0)      /* Red (max) */
+  );
+}
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 12px;
+  color: #6c757d;
+  font-family: monospace;
+}
+
+.scale-labels span:nth-child(2) {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Barcode Stats */
+.barcode-stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+/* Detailed Section */
+.detailed-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
 .embedding-visualization h4 {
   margin: 0 0 10px 0;
   color: #2c3e50;

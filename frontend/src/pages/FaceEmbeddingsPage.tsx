@@ -70,6 +70,168 @@ const AVAILABLE_MODELS = [
   "SFace"
 ];
 
+// Color mapping function for barcode visualization
+const getColorFromValue = (value: number, minVal: number, maxVal: number): string => {
+  // Normalize value to 0-1 range
+  const normalized = (value - minVal) / (maxVal - minVal);
+  
+  // Use a blue-to-red color scale (similar to ocean colormap)
+  const r = Math.round(255 * normalized);
+  const g = Math.round(255 * (1 - Math.abs(normalized - 0.5) * 2));
+  const b = Math.round(255 * (1 - normalized));
+  
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
+// BarcodeVisualization Component
+interface BarcodeVisualizationProps {
+  embedding: number[];
+  title: string;
+  faceIndex: number;
+}
+
+const BarcodeVisualization: React.FC<BarcodeVisualizationProps> = ({
+  embedding,
+  title,
+  faceIndex
+}) => {
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const [showDetailed, setShowDetailed] = useState(false);
+  
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Set canvas dimensions
+    const width = Math.min(embedding.length * 2, 800); // 2px per dimension, max 800px
+    const height = 100;
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Get min/max values for color mapping
+    const minVal = Math.min(...embedding);
+    const maxVal = Math.max(...embedding);
+    
+    // Draw barcode
+    const barWidth = width / embedding.length;
+    
+    embedding.forEach((value, index) => {
+      const color = getColorFromValue(value, minVal, maxVal);
+      ctx.fillStyle = color;
+      ctx.fillRect(index * barWidth, 0, barWidth, height);
+    });
+    
+    // Add border
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0, 0, width, height);
+    
+  }, [embedding]);
+  
+  return (
+    <div className="embedding-visualization">
+      <div className="visualization-header">
+        <h4>{title}</h4>
+        <button 
+          className="toggle-view-btn"
+          onClick={() => setShowDetailed(!showDetailed)}
+        >
+          {showDetailed ? 'Show Barcode' : 'Show Details'}
+        </button>
+      </div>
+      
+      {!showDetailed ? (
+        <div className="barcode-section">
+          <div className="barcode-info">
+            <p>Face Embedding Barcode ({embedding.length} dimensions)</p>
+            <p>Each vertical stripe represents one dimension of the face feature vector</p>
+          </div>
+          
+          <div className="barcode-container">
+            <canvas 
+              ref={canvasRef}
+              className="barcode-canvas"
+              title="Face embedding barcode - each stripe is one dimension"
+            />
+            
+            {/* Color scale legend */}
+            <div className="color-scale">
+              <div className="scale-bar">
+                <div className="scale-gradient"></div>
+              </div>
+              <div className="scale-labels">
+                <span>{Math.min(...embedding).toFixed(3)}</span>
+                <span>Value</span>
+                <span>{Math.max(...embedding).toFixed(3)}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="barcode-stats">
+            <div className="stat-item">
+              <strong>Dimensions:</strong> {embedding.length}
+            </div>
+            <div className="stat-item">
+              <strong>Range:</strong> {(Math.max(...embedding) - Math.min(...embedding)).toFixed(4)}
+            </div>
+            <div className="stat-item">
+              <strong>Mean:</strong> {(embedding.reduce((a, b) => a + b, 0) / embedding.length).toFixed(4)}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="detailed-section">
+          {/* Horizontal Bar Chart */}
+          <div className="embedding-horizontal-bars">
+            <h5>First 32 Dimensions (Detailed View)</h5>
+            {embedding.slice(0, 32).map((value, index) => {
+              const maxAbsValue = Math.max(...embedding.map(Math.abs));
+              return (
+                <div key={index} className="embedding-row">
+                  <span className="dimension-label">{index}</span>
+                  <div className="bar-track">
+                    <div className="zero-line"></div>
+                    <div 
+                      className={`embedding-horizontal-bar ${value >= 0 ? 'positive' : 'negative'}`}
+                      style={{
+                        width: `${Math.abs(value) / maxAbsValue * 100}%`,
+                        [value >= 0 ? 'left' : 'right']: '50%'
+                      }}
+                      title={`Dimension ${index}: ${value.toFixed(6)}`}
+                    />
+                  </div>
+                  <span className="value-label">{value.toFixed(3)}</span>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="embedding-stats">
+            <div className="stat-item">
+              <strong>Dimensions:</strong> {embedding.length}
+            </div>
+            <div className="stat-item">
+              <strong>Min:</strong> {Math.min(...embedding).toFixed(4)}
+            </div>
+            <div className="stat-item">
+              <strong>Max:</strong> {Math.max(...embedding).toFixed(4)}
+            </div>
+            <div className="stat-item">
+              <strong>Mean:</strong> {(embedding.reduce((a, b) => a + b, 0) / embedding.length).toFixed(4)}
+            </div>
+            <div className="stat-item">
+              <strong>Std Dev:</strong> {Math.sqrt(embedding.reduce((acc, val) => acc + Math.pow(val - (embedding.reduce((a, b) => a + b, 0) / embedding.length), 2), 0) / embedding.length).toFixed(4)}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const FaceEmbeddingsPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>("Facenet");
@@ -134,130 +296,6 @@ const FaceEmbeddingsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const renderEmbeddingVisualization = (embedding: number[], title: string) => {
-    // Show first 32 dimensions for better visualization
-    const displayDimensions = embedding.slice(0, 32);
-    const maxValue = Math.max(...displayDimensions.map(Math.abs));
-    const minValue = Math.min(...displayDimensions);
-    const maxAbsValue = Math.max(Math.abs(minValue), Math.abs(Math.max(...displayDimensions)));
-    
-    return (
-      <div className="embedding-visualization">
-        <h4>{title}</h4>
-        <p className="dimension-info">Showing first 32 of {embedding.length} dimensions</p>
-        
-        {/* Horizontal Bar Chart */}
-        <div className="embedding-horizontal-bars">
-          {displayDimensions.map((value, index) => (
-            <div key={index} className="embedding-row">
-              <span className="dimension-label">{index}</span>
-              <div className="bar-track">
-                <div className="zero-line"></div>
-                <div 
-                  className={`embedding-horizontal-bar ${value >= 0 ? 'positive' : 'negative'}`}
-                  style={{
-                    width: `${Math.abs(value) / maxAbsValue * 100}%`,
-                    [value >= 0 ? 'left' : 'right']: '50%'
-                  }}
-                  title={`Dimension ${index}: ${value.toFixed(6)}`}
-                />
-              </div>
-              <span className="value-label">{value.toFixed(3)}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Heatmap Visualization */}
-        <div className="embedding-heatmap">
-          <h5>Heatmap View (8x4 grid)</h5>
-          <div className="heatmap-grid">
-            {displayDimensions.map((value, index) => {
-              const intensity = Math.abs(value) / maxAbsValue;
-              const hue = value >= 0 ? 120 : 0; // Green for positive, Red for negative
-              const saturation = 70;
-              const lightness = 90 - (intensity * 40); // Darker = higher magnitude
-              
-              return (
-                <div
-                  key={index}
-                  className="heatmap-cell"
-                  style={{
-                    backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`
-                  }}
-                  title={`Dim ${index}: ${value.toFixed(6)}`}
-                >
-                  {index}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Line Chart */}
-        <div className="embedding-line-chart">
-          <h5>Line Chart View</h5>
-          <svg className="line-chart-svg" viewBox="0 0 400 150">
-            {/* Grid lines */}
-            <defs>
-              <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
-                <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" strokeWidth="1"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-            
-            {/* Zero line */}
-            <line x1="0" y1="75" x2="400" y2="75" stroke="#999" strokeWidth="1" strokeDasharray="2,2"/>
-            
-            {/* Data line */}
-            <polyline
-              fill="none"
-              stroke="#9C27B0"
-              strokeWidth="2"
-              points={displayDimensions.map((value, index) => {
-                const x = (index / (displayDimensions.length - 1)) * 380 + 10;
-                const y = 75 - (value / maxAbsValue) * 60; // Center at 75, scale by 60px
-                return `${x},${y}`;
-              }).join(' ')}
-            />
-            
-            {/* Data points */}
-            {displayDimensions.map((value, index) => {
-              const x = (index / (displayDimensions.length - 1)) * 380 + 10;
-              const y = 75 - (value / maxAbsValue) * 60;
-              return (
-                <circle
-                  key={index}
-                  cx={x}
-                  cy={y}
-                  r="3"
-                  fill={value >= 0 ? '#4CAF50' : '#f44336'}
-                />
-              );
-            })}
-          </svg>
-        </div>
-
-        <div className="embedding-stats">
-          <div className="stat-item">
-            <strong>Dimensions:</strong> {embedding.length}
-          </div>
-          <div className="stat-item">
-            <strong>Min:</strong> {Math.min(...embedding).toFixed(4)}
-          </div>
-          <div className="stat-item">
-            <strong>Max:</strong> {Math.max(...embedding).toFixed(4)}
-          </div>
-          <div className="stat-item">
-            <strong>Mean:</strong> {(embedding.reduce((a, b) => a + b, 0) / embedding.length).toFixed(4)}
-          </div>
-          <div className="stat-item">
-            <strong>Std Dev:</strong> {Math.sqrt(embedding.reduce((acc, val) => acc + Math.pow(val - (embedding.reduce((a, b) => a + b, 0) / embedding.length), 2), 0) / embedding.length).toFixed(4)}
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -378,10 +416,11 @@ const FaceEmbeddingsPage: React.FC = () => {
                           <p><strong>Face Region:</strong> ({embedding.region.x}, {embedding.region.y}) 
                              {embedding.region.w}×{embedding.region.h}</p>
                         )}
-                        {renderEmbeddingVisualization(
-                          embedding.embedding, 
-                          `Face ${embIndex + 1} Embedding Vector`
-                        )}
+                        <BarcodeVisualization
+                          embedding={embedding.embedding}
+                          title={`Face ${embIndex + 1} Embedding Vector`}
+                          faceIndex={embIndex}
+                        />
                       </div>
                     ))}
                   </>
