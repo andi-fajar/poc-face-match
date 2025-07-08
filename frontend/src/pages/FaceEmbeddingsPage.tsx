@@ -96,7 +96,7 @@ const BarcodeVisualization: React.FC<BarcodeVisualizationProps> = ({
   faceIndex
 }) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const [showDetailed, setShowDetailed] = useState(false);
+  const [showVectorValues, setShowVectorValues] = useState(false);
   
   React.useEffect(() => {
     const canvas = canvasRef.current;
@@ -105,9 +105,10 @@ const BarcodeVisualization: React.FC<BarcodeVisualizationProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Set canvas dimensions
-    const width = Math.min(embedding.length * 2, 800); // 2px per dimension, max 800px
-    const height = 100;
+    // Set canvas dimensions - much wider to fill available space
+    const containerWidth = 1000; // Increased from 800
+    const width = Math.min(embedding.length * 3, containerWidth); // 3px per dimension for wider bars
+    const height = 120; // Slightly taller
     canvas.width = width;
     canvas.height = height;
     
@@ -137,93 +138,74 @@ const BarcodeVisualization: React.FC<BarcodeVisualizationProps> = ({
         <h4>{title}</h4>
         <button 
           className="toggle-view-btn"
-          onClick={() => setShowDetailed(!showDetailed)}
+          onClick={() => setShowVectorValues(!showVectorValues)}
         >
-          {showDetailed ? 'Show Barcode' : 'Show Details'}
+          {showVectorValues ? 'Hide Vector Values' : 'Show Vector Values'}
         </button>
       </div>
       
-      {!showDetailed ? (
-        <div className="barcode-section">
-          <div className="barcode-info">
-            <p>Face Embedding Barcode ({embedding.length} dimensions)</p>
-            <p>Each vertical stripe represents one dimension of the face feature vector</p>
-          </div>
+      {/* Barcode section - always visible */}
+      <div className="barcode-section">
+        <div className="barcode-info">
+          <p>Face Embedding Barcode ({embedding.length} dimensions)</p>
+          <p>Each vertical stripe represents one dimension of the face feature vector</p>
+        </div>
+        
+        <div className="barcode-container">
+          <canvas 
+            ref={canvasRef}
+            className="barcode-canvas"
+            title="Face embedding barcode - each stripe is one dimension"
+          />
           
-          <div className="barcode-container">
-            <canvas 
-              ref={canvasRef}
-              className="barcode-canvas"
-              title="Face embedding barcode - each stripe is one dimension"
-            />
-            
-            {/* Color scale legend */}
-            <div className="color-scale">
-              <div className="scale-bar">
-                <div className="scale-gradient"></div>
-              </div>
-              <div className="scale-labels">
-                <span>{Math.min(...embedding).toFixed(3)}</span>
-                <span>Value</span>
-                <span>{Math.max(...embedding).toFixed(3)}</span>
-              </div>
+          {/* Color scale legend */}
+          <div className="color-scale">
+            <div className="scale-bar">
+              <div className="scale-gradient"></div>
             </div>
-          </div>
-          
-          <div className="barcode-stats">
-            <div className="stat-item">
-              <strong>Dimensions:</strong> {embedding.length}
-            </div>
-            <div className="stat-item">
-              <strong>Range:</strong> {(Math.max(...embedding) - Math.min(...embedding)).toFixed(4)}
-            </div>
-            <div className="stat-item">
-              <strong>Mean:</strong> {(embedding.reduce((a, b) => a + b, 0) / embedding.length).toFixed(4)}
+            <div className="scale-labels">
+              <span>{Math.min(...embedding).toFixed(3)}</span>
+              <span>Value</span>
+              <span>{Math.max(...embedding).toFixed(3)}</span>
             </div>
           </div>
         </div>
-      ) : (
-        <div className="detailed-section">
-          {/* Horizontal Bar Chart */}
-          <div className="embedding-horizontal-bars">
-            <h5>First 32 Dimensions (Detailed View)</h5>
-            {embedding.slice(0, 32).map((value, index) => {
-              const maxAbsValue = Math.max(...embedding.map(Math.abs));
-              return (
-                <div key={index} className="embedding-row">
-                  <span className="dimension-label">{index}</span>
-                  <div className="bar-track">
-                    <div className="zero-line"></div>
-                    <div 
-                      className={`embedding-horizontal-bar ${value >= 0 ? 'positive' : 'negative'}`}
-                      style={{
-                        width: `${Math.abs(value) / maxAbsValue * 100}%`,
-                        [value >= 0 ? 'left' : 'right']: '50%'
-                      }}
-                      title={`Dimension ${index}: ${value.toFixed(6)}`}
-                    />
-                  </div>
-                  <span className="value-label">{value.toFixed(3)}</span>
-                </div>
-              );
-            })}
+        
+        <div className="barcode-stats">
+          <div className="stat-item">
+            <strong>Dimensions:</strong> {embedding.length}
+          </div>
+          <div className="stat-item">
+            <strong>Range:</strong> {(Math.max(...embedding) - Math.min(...embedding)).toFixed(4)}
+          </div>
+          <div className="stat-item">
+            <strong>Mean:</strong> {(embedding.reduce((a, b) => a + b, 0) / embedding.length).toFixed(4)}
+          </div>
+        </div>
+      </div>
+
+      {/* Vector values section - toggleable */}
+      {showVectorValues && (
+        <div className="vector-values-section">
+          <h5>Raw Vector Values</h5>
+          <div className="vector-values-grid">
+            {embedding.map((value, index) => (
+              <div key={index} className="vector-value-item">
+                <span className="vector-index">[{index}]</span>
+                <span className="vector-value">{value.toFixed(6)}</span>
+              </div>
+            ))}
           </div>
           
-          <div className="embedding-stats">
+          <div className="vector-stats">
             <div className="stat-item">
-              <strong>Dimensions:</strong> {embedding.length}
+              <strong>Min:</strong> {Math.min(...embedding).toFixed(6)}
             </div>
             <div className="stat-item">
-              <strong>Min:</strong> {Math.min(...embedding).toFixed(4)}
+              <strong>Max:</strong> {Math.max(...embedding).toFixed(6)}
             </div>
             <div className="stat-item">
-              <strong>Max:</strong> {Math.max(...embedding).toFixed(4)}
-            </div>
-            <div className="stat-item">
-              <strong>Mean:</strong> {(embedding.reduce((a, b) => a + b, 0) / embedding.length).toFixed(4)}
-            </div>
-            <div className="stat-item">
-              <strong>Std Dev:</strong> {Math.sqrt(embedding.reduce((acc, val) => acc + Math.pow(val - (embedding.reduce((a, b) => a + b, 0) / embedding.length), 2), 0) / embedding.length).toFixed(4)}
+              <strong>Std Dev:</strong> {Math.sqrt(embedding.reduce((acc, val) => acc + Math.pow(val - (embedding.reduce((a, b) => a + b, 0) / embedding.length), 2), 0) / embedding.length).toFixed(6)}
             </div>
           </div>
         </div>
