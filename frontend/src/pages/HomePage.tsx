@@ -11,7 +11,7 @@ const HomePage: React.FC = () => {
   const features = [
     {
       title: 'Face Verification',
-      description: 'Compare faces to verify if they belong to the same person',
+      description: 'Compare 2-4 faces to verify if they belong to the same person using 9 AI models',
       icon: '🔍',
       path: '/face-verification',
       status: 'available'
@@ -25,10 +25,10 @@ const HomePage: React.FC = () => {
     },
     {
       title: 'Facial Attributes',
-      description: 'Analyze age, gender, emotion, and race from facial images',
-      icon: '📊',
+      description: 'Analyze age, gender, emotion, and ethnicity from facial images using AI',
+      icon: '🧠',
       path: '/facial-attributes',
-      status: 'coming-soon'
+      status: 'available'
     },
     {
       title: 'Face Embeddings',
@@ -61,9 +61,9 @@ const HomePage: React.FC = () => {
           Explore the power of modern face recognition technology with DeepFace
         </p>
         <p className="hero-description">
-          This proof-of-concept showcases various facial analysis capabilities including 
-          verification, recognition, attribute analysis, and more. Built with React, FastAPI, 
-          and the powerful DeepFace library.
+          This proof-of-concept showcases advanced facial analysis capabilities including 
+          face verification, facial attributes analysis (age, gender, emotion, ethnicity), 
+          and more. Built with React, FastAPI, and the powerful DeepFace library.
         </p>
       </div>
 
@@ -89,6 +89,38 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="featured-section">
+        <h2>🚀 Available Features</h2>
+        <div className="featured-items">
+          <div className="featured-item">
+            <span className="featured-icon">🔍</span>
+            <div className="featured-content">
+              <h3>Face Verification</h3>
+              <p>Compare multiple faces with 9 different AI models including VGG-Face, FaceNet, and ArcFace</p>
+              <ul>
+                <li>Support for 2-4 images simultaneously</li>
+                <li>Confidence scores and detailed metrics</li>
+                <li>Multiple face recognition models</li>
+              </ul>
+            </div>
+          </div>
+          <div className="featured-item">
+            <span className="featured-icon">🧠</span>
+            <div className="featured-content">
+              <h3>Facial Attributes Analysis</h3>
+              <p>Extract demographic and emotional insights from facial images using deep learning</p>
+              <ul>
+                <li>Age estimation with high accuracy</li>
+                <li>Gender classification with confidence</li>
+                <li>Emotion detection (7 emotions)</li>
+                <li>Ethnicity analysis (6 categories)</li>
+                <li>Multiple faces per image support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="tech-stack">

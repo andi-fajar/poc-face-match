@@ -10,6 +10,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import HomePage from './pages/HomePage';
 import FaceVerificationPage from './pages/FaceVerificationPage';
+import FacialAttributesPage from './pages/FacialAttributesPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 import './App.css';
 
@@ -49,30 +50,7 @@ const App: React.FC = () => {
               } 
             />
             
-            <Route 
-              path="/facial-attributes" 
-              element={
-                <ComingSoonPage
-                  icon="📊"
-                  title="Facial Attributes Analysis"
-                  description="Analyze age, gender, emotion, and race from facial images using deep learning models"
-                  features={[
-                    "Age estimation with accuracy",
-                    "Gender classification",
-                    "Emotion detection (happy, sad, angry, etc.)",
-                    "Race/ethnicity prediction",
-                    "Real-time attribute analysis"
-                  ]}
-                  expectedFeatures={[
-                    "Demographic analytics dashboard",
-                    "Batch processing for multiple faces",
-                    "Custom attribute model training",
-                    "Export analysis results",
-                    "Integration with business intelligence tools"
-                  ]}
-                />
-              } 
-            />
+            <Route path="/facial-attributes" element={<FacialAttributesPage />} />
             
             <Route 
               path="/face-embeddings" 

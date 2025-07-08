@@ -125,6 +125,134 @@ async def health_check():
         "missing_models": [model for model in AVAILABLE_MODELS if model not in preloaded_models]
     }
 
+@app.post("/analyze-attributes")
+async def analyze_attributes(
+    files: List[UploadFile] = File(...),
+    actions: str = Form("age,gender,emotion,race")
+):
+    """Analyze facial attributes in uploaded images"""
+    
+    # Validate number of files
+    if len(files) < 1:
+        raise HTTPException(status_code=400, detail="At least 1 image is required for analysis")
+    
+    if len(files) > 10:
+        raise HTTPException(status_code=400, detail="Maximum 10 images are allowed for analysis")
+    
+    # Parse actions
+    action_list = [action.strip() for action in actions.split(',')]
+    valid_actions = ['age', 'gender', 'emotion', 'race']
+    
+    for action in action_list:
+        if action not in valid_actions:
+            raise HTTPException(status_code=400, detail=f"Invalid action: {action}. Valid actions: {valid_actions}")
+    
+    temp_files = []
+    results = []
+    
+    try:
+        # Save uploaded files temporarily
+        for i, file in enumerate(files):
+            if not file.content_type.startswith('image/'):
+                raise HTTPException(status_code=400, detail=f"File {file.filename} is not an image")
+            
+            content = await file.read()
+            
+            if not validate_image(content):
+                raise HTTPException(status_code=400, detail=f"File {file.filename} is not a valid image")
+            
+            temp_path = save_temp_image(content, f"temp_analyze_{i}_{file.filename}")
+            temp_files.append(temp_path)
+        
+        # Analyze each image
+        for i, temp_path in enumerate(temp_files):
+            try:
+                # Use DeepFace to analyze facial attributes
+                analysis = DeepFace.analyze(
+                    img_path=temp_path,
+                    actions=action_list,
+                    enforce_detection=False  # Allow analysis even if face detection fails
+                )
+                
+                # Handle both single face and multiple faces results
+                if isinstance(analysis, list):
+                    face_results = analysis
+                else:
+                    face_results = [analysis]
+                
+                # Process each detected face
+                processed_faces = []
+                for face_idx, face_data in enumerate(face_results):
+                    face_result = {
+                        "face_index": face_idx,
+                        "filename": files[i].filename,
+                        "region": face_data.get("region", {}),
+                    }
+                    
+                    # Add requested attributes
+                    if 'age' in action_list:
+                        face_result["age"] = face_data.get("age", None)
+                    
+                    if 'gender' in action_list:
+                        gender_data = face_data.get("gender", {})
+                        face_result["gender"] = {
+                            "prediction": max(gender_data.items(), key=lambda x: x[1])[0] if gender_data else None,
+                            "confidence": gender_data
+                        }
+                    
+                    if 'emotion' in action_list:
+                        emotion_data = face_data.get("emotion", {})
+                        face_result["emotion"] = {
+                            "prediction": max(emotion_data.items(), key=lambda x: x[1])[0] if emotion_data else None,
+                            "confidence": emotion_data
+                        }
+                    
+                    if 'race' in action_list:
+                        race_data = face_data.get("race", {})
+                        face_result["race"] = {
+                            "prediction": max(race_data.items(), key=lambda x: x[1])[0] if race_data else None,
+                            "confidence": race_data
+                        }
+                    
+                    processed_faces.append(face_result)
+                
+                results.append({
+                    "image_index": i,
+                    "filename": files[i].filename,
+                    "faces_detected": len(processed_faces),
+                    "faces": processed_faces
+                })
+                
+            except Exception as e:
+                logger.error(f"Error analyzing {files[i].filename}: {e}")
+                results.append({
+                    "image_index": i,
+                    "filename": files[i].filename,
+                    "error": str(e)
+                })
+        
+        # Prepare response
+        response = {
+            "actions_performed": action_list,
+            "total_images": len(files),
+            "total_faces_detected": sum(r.get("faces_detected", 0) for r in results),
+            "results": results,
+            "summary": {
+                "successful_analyses": len([r for r in results if "error" not in r]),
+                "failed_analyses": len([r for r in results if "error" in r])
+            }
+        }
+        
+        return JSONResponse(content=response)
+        
+    except Exception as e:
+        logger.error(f"Unexpected error in analyze_attributes: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+    finally:
+        # Clean up temporary files
+        cleanup_temp_files(temp_files)
+
 @app.post("/compare-faces")
 async def compare_faces(
     files: List[UploadFile] = File(...),
