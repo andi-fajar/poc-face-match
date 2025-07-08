@@ -199,3 +199,98 @@ class FaceService:
             "successful_analyses": len([r for r in results if "error" not in r]),
             "failed_analyses": len([r for r in results if "error" in r])
         }
+    
+    @staticmethod
+    def extract_face_embeddings(img_path: str, model_name: str) -> List[Dict[str, Any]]:
+        """
+        Extract face embeddings from an image
+        
+        Args:
+            img_path: Path to the image
+            model_name: Name of the face recognition model to use
+            
+        Returns:
+            List of dictionaries containing embedding vectors and facial areas
+        """
+        try:
+            embeddings = DeepFace.represent(
+                img_path=img_path,
+                model_name=model_name,
+                enforce_detection=False
+            )
+            
+            # Ensure we always return a list
+            if isinstance(embeddings, list):
+                return embeddings
+            else:
+                return [embeddings]
+                
+        except Exception as e:
+            logger.error(f"Error in face embedding extraction: {e}")
+            raise
+    
+    @staticmethod
+    def calculate_embedding_distance(embedding1: List[float], embedding2: List[float], metric: str = "cosine") -> float:
+        """
+        Calculate distance between two face embeddings
+        
+        Args:
+            embedding1: First embedding vector
+            embedding2: Second embedding vector
+            metric: Distance metric to use (cosine, euclidean)
+            
+        Returns:
+            Distance value between the embeddings
+        """
+        try:
+            import numpy as np
+            from scipy.spatial.distance import cosine, euclidean
+            
+            if len(embedding1) != len(embedding2):
+                raise ValueError("Embeddings must have the same dimensions")
+            
+            if metric == "cosine":
+                return float(cosine(embedding1, embedding2))
+            elif metric == "euclidean":
+                return float(euclidean(embedding1, embedding2))
+            else:
+                raise ValueError(f"Unsupported distance metric: {metric}")
+                
+        except Exception as e:
+            logger.error(f"Error in embedding distance calculation: {e}")
+            raise
+    
+    @staticmethod
+    def calculate_embeddings_summary(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Calculate summary statistics for face embeddings extraction
+        
+        Args:
+            results: List of embedding extraction results
+            
+        Returns:
+            Dictionary with embedding extraction statistics
+        """
+        total_faces = sum(r.get("faces_detected", 0) for r in results)
+        total_embeddings = sum(len(r.get("embeddings", [])) for r in results)
+        
+        successful_extractions = len([r for r in results if "error" not in r])
+        failed_extractions = len([r for r in results if "error" in r])
+        
+        # Get embedding dimensions from first successful result
+        embedding_dimensions = 0
+        for result in results:
+            if "error" not in result and result.get("embeddings"):
+                first_embedding = result["embeddings"][0]
+                if first_embedding.get("embedding"):
+                    embedding_dimensions = len(first_embedding["embedding"])
+                    break
+        
+        return {
+            "total_faces": total_faces,
+            "total_embeddings": total_embeddings,
+            "embedding_dimensions": embedding_dimensions,
+            "successful_extractions": successful_extractions,
+            "failed_extractions": failed_extractions,
+            "extraction_rate": f"{(successful_extractions / max(len(results), 1) * 100):.1f}%" if len(results) > 0 else "0%"
+        }

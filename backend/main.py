@@ -18,7 +18,8 @@ from endpoints import (
     basic_router,
     face_comparison_router,
     face_analysis_router,
-    anti_spoofing_router
+    anti_spoofing_router,
+    face_embeddings_router
 )
 
 # Set up logging
@@ -41,6 +42,7 @@ app.include_router(basic_router)
 app.include_router(face_comparison_router)
 app.include_router(face_analysis_router)
 app.include_router(anti_spoofing_router)
+app.include_router(face_embeddings_router)
 
 @app.on_event("startup")
 async def startup_event():

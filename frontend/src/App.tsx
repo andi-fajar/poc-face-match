@@ -11,6 +11,7 @@ import Navigation from './components/Navigation';
 import HomePage from './pages/HomePage';
 import FaceVerificationPage from './pages/FaceVerificationPage';
 import FacialAttributesPage from './pages/FacialAttributesPage';
+import FaceEmbeddingsPage from './pages/FaceEmbeddingsPage';
 import SpoofDetectionPage from './pages/SpoofDetectionPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 import './App.css';
@@ -53,30 +54,7 @@ const App: React.FC = () => {
             
             <Route path="/facial-attributes" element={<FacialAttributesPage />} />
             
-            <Route 
-              path="/face-embeddings" 
-              element={
-                <ComingSoonPage
-                  icon="🧮"
-                  title="Face Embeddings"
-                  description="Extract numerical feature vectors from face images for advanced analysis and clustering"
-                  features={[
-                    "512-dimensional face embeddings",
-                    "Feature vector extraction",
-                    "Similarity calculations",
-                    "Clustering capabilities",
-                    "Export embeddings for ML pipelines"
-                  ]}
-                  expectedFeatures={[
-                    "Vector database integration",
-                    "Dimensionality reduction visualization",
-                    "Custom embedding models",
-                    "Batch embedding extraction",
-                    "API for embedding services"
-                  ]}
-                />
-              } 
-            />
+            <Route path="/face-embeddings" element={<FaceEmbeddingsPage />} />
             
             <Route path="/anti-spoofing" element={<SpoofDetectionPage />} />
             

@@ -125,6 +125,44 @@ class HealthResponse(BaseModel):
 class ModelsResponse(BaseModel):
     models: List[str]
 
+# Face Embeddings Models
+class EmbeddingResult(BaseModel):
+    face_index: int
+    embedding: List[float]
+    embedding_dimensions: int
+    region: Optional[FacialArea] = None
+
+class EmbeddingImageResult(BaseModel):
+    image_index: int
+    filename: str
+    faces_detected: int
+    embeddings: Optional[List[EmbeddingResult]] = None
+    error: Optional[str] = None
+
+class EmbeddingComparison(BaseModel):
+    image1: str
+    image2: str
+    face1_index: int
+    face2_index: int
+    cosine_distance: float
+    euclidean_distance: float
+    similarity_percentage: float
+
+class EmbeddingsSummary(BaseModel):
+    total_faces: int
+    total_embeddings: int
+    embedding_dimensions: int
+    successful_extractions: int
+    failed_extractions: int
+    extraction_rate: str
+
+class FaceEmbeddingsResponse(BaseResponse):
+    model_used: str
+    total_embeddings: int
+    results: List[EmbeddingImageResult]
+    comparisons: Optional[List[EmbeddingComparison]] = None
+    summary: EmbeddingsSummary
+
 # Basic Response Models
 class BasicResponse(BaseModel):
     message: str

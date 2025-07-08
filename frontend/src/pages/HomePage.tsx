@@ -32,10 +32,10 @@ const HomePage: React.FC = () => {
     },
     {
       title: 'Face Embeddings',
-      description: 'Extract numerical feature vectors from face images',
+      description: 'Extract numerical feature vectors from face images for advanced analysis and clustering',
       icon: '🧮',
       path: '/face-embeddings',
-      status: 'coming-soon'
+      status: 'available'
     },
     {
       title: 'Anti-Spoofing',
@@ -131,6 +131,20 @@ const HomePage: React.FC = () => {
                 <li>Multiple face analysis support</li>
                 <li>Real-time fraud prevention</li>
                 <li>Enhanced security verification</li>
+              </ul>
+            </div>
+          </div>
+          <div className="featured-item">
+            <span className="featured-icon">🧮</span>
+            <div className="featured-content">
+              <h3>Face Embeddings</h3>
+              <p>Extract high-dimensional numerical representations of faces for advanced analysis and machine learning</p>
+              <ul>
+                <li>Multi-dimensional feature vectors (128-4096 dimensions)</li>
+                <li>Distance calculations (cosine, euclidean)</li>
+                <li>Embedding visualization for education</li>
+                <li>Similarity comparisons between faces</li>
+                <li>Support for all 9 recognition models</li>
               </ul>
             </div>
           </div>
