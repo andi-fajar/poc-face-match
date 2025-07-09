@@ -52,5 +52,26 @@ VALID_ACTIONS = ['age', 'gender', 'emotion', 'race']
 # Logging configuration
 def setup_logging():
     """Configure logging for the application"""
-    logging.basicConfig(level=logging.INFO)
-    return logging.getLogger(__name__)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Add memory monitoring logs
+    logger = logging.getLogger(__name__)
+    
+    # Log memory usage at startup
+    try:
+        import psutil
+        memory_info = psutil.virtual_memory()
+        logger.info(f"System memory: {memory_info.total / (1024**3):.2f} GB total, "
+                   f"{memory_info.available / (1024**3):.2f} GB available")
+        
+        process = psutil.Process(os.getpid())
+        process_memory = process.memory_info()
+        logger.info(f"Process memory usage: {process_memory.rss / (1024**2):.2f} MB")
+        
+    except ImportError:
+        logger.warning("psutil not available - memory monitoring disabled")
+    
+    return logger

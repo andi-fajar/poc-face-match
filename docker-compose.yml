@@ -6,6 +6,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: face-match-backend
+    restart: unless-stopped
     environment:
       - TF_USE_LEGACY_KERAS=1
       - TF_ENABLE_ONEDNN_OPTS=0
@@ -16,6 +17,12 @@ services:
       - "8000:8000"
     networks:
       - face-match-network
+    deploy:
+      resources:
+        limits:
+          memory: 3.5G
+        reservations:
+          memory: 2.5G
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s

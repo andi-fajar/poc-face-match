@@ -114,8 +114,16 @@ class AntiSpoofingResponse(BaseResponse):
     summary: SpoofingSummary
 
 # Health Check Models
+class MemoryInfo(BaseModel):
+    total_mb: float
+    used_mb: float
+    available_mb: float
+    usage_percent: float
+    process_memory_mb: float
+
 class HealthResponse(BaseModel):
     status: str
+    memory: Optional[MemoryInfo] = None
 
 # Models List Response
 class ModelsResponse(BaseModel):
