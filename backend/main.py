@@ -13,7 +13,6 @@ from config import (
     CORS_ORIGINS, CORS_CREDENTIALS, CORS_METHODS, CORS_HEADERS,
     setup_logging
 )
-from models import preload_models
 from endpoints import (
     basic_router,
     face_comparison_router,
@@ -44,12 +43,6 @@ app.include_router(face_analysis_router)
 app.include_router(anti_spoofing_router)
 app.include_router(face_embeddings_router)
 
-@app.on_event("startup")
-async def startup_event():
-    """FastAPI startup event to preload models"""
-    logger.info("Application startup: Beginning model preloading...")
-    preload_models()
-    logger.info("Application startup completed.")
 
 if __name__ == "__main__":
     uvicorn.run(app, host=SERVER_HOST, port=SERVER_PORT)

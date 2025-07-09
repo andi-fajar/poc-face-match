@@ -116,10 +116,6 @@ class AntiSpoofingResponse(BaseResponse):
 # Health Check Models
 class HealthResponse(BaseModel):
     status: str
-    total_models: int
-    loaded_models: int
-    loaded_model_names: List[str]
-    missing_models: List[str]
 
 # Models List Response
 class ModelsResponse(BaseModel):

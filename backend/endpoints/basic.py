@@ -6,7 +6,6 @@ Contains root, health check, and models endpoints
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from config import AVAILABLE_MODELS
-from models import get_model_status
 from schemas import BasicResponse, HealthResponse, ModelsResponse
 
 router = APIRouter()
@@ -18,12 +17,9 @@ async def root():
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Health check endpoint with model loading status"""
-    model_status = get_model_status()
-    
+    """Health check endpoint"""
     return {
-        "status": "healthy",
-        **model_status
+        "status": "healthy"
     }
 
 @router.get("/models", response_model=ModelsResponse)
