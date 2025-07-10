@@ -36,8 +36,15 @@ async def analyze_attributes(
     if file_count_error:
         raise HTTPException(status_code=400, detail=file_count_error)
     
-    # Parse actions
+    # Parse actions - support single action to reduce memory usage
     action_list = [action.strip() for action in actions.split(',')]
+    
+    # Enforce single action limit for memory optimization
+    if len(action_list) > 1:
+        raise HTTPException(
+            status_code=400,
+            detail="Only one attribute can be analyzed per request to reduce memory usage. Please select a single attribute."
+        )
     
     for action in action_list:
         if action not in VALID_ACTIONS:

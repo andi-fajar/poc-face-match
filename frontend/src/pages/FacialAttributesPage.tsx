@@ -57,7 +57,7 @@ const AVAILABLE_ACTIONS = [
 
 const FacialAttributesPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
-  const [selectedActions, setSelectedActions] = useState<string[]>(['age', 'gender', 'emotion', 'race']);
+  const [selectedAction, setSelectedAction] = useState<string>('age');
   const [results, setResults] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,11 +87,7 @@ const FacialAttributesPage: React.FC = () => {
   };
 
   const handleActionChange = (action: string) => {
-    setSelectedActions(prev => 
-      prev.includes(action) 
-        ? prev.filter(a => a !== action)
-        : [...prev, action]
-    );
+    setSelectedAction(action);
   };
 
   const handleSubmit = async () => {
@@ -100,8 +96,8 @@ const FacialAttributesPage: React.FC = () => {
       return;
     }
 
-    if (selectedActions.length === 0) {
-      setError("Please select at least one attribute to analyze");
+    if (!selectedAction) {
+      setError("Please select an attribute to analyze");
       return;
     }
 
@@ -114,7 +110,7 @@ const FacialAttributesPage: React.FC = () => {
       files.forEach(file => {
         formData.append('files', file);
       });
-      formData.append('actions', selectedActions.join(','));
+      formData.append('actions', selectedAction);
 
       const response = await axios.post<ApiResponse>(
         '/api/analyze-attributes',
@@ -263,22 +259,25 @@ const FacialAttributesPage: React.FC = () => {
       
       <div className="upload-section">
         <div className="actions-selector">
-          <h3>Select Attributes to Analyze:</h3>
+          <h3>Select Attribute to Analyze (Single Selection):</h3>
           <div className="actions-grid">
             {AVAILABLE_ACTIONS.map(action => (
-              <label key={action.key} className="action-checkbox">
+              <label key={action.key} className="action-radio">
                 <input
-                  type="checkbox"
-                  checked={selectedActions.includes(action.key)}
+                  type="radio"
+                  name="attribute"
+                  value={action.key}
+                  checked={selectedAction === action.key}
                   onChange={() => handleActionChange(action.key)}
                 />
-                <span className="checkbox-content">
+                <span className="radio-content">
                   <span className="icon">{action.icon}</span>
                   <span className="label">{action.label}</span>
                 </span>
               </label>
             ))}
           </div>
+          <p className="selection-note">💡 Single attribute selection reduces memory usage and improves performance</p>
         </div>
 
         <div 
@@ -322,7 +321,7 @@ const FacialAttributesPage: React.FC = () => {
 
         <button 
           onClick={handleSubmit} 
-          disabled={files.length < 1 || selectedActions.length === 0 || loading}
+          disabled={files.length < 1 || !selectedAction || loading}
           className="submit-button"
         >
           {loading ? 'Analyzing...' : 'Analyze Attributes'}
